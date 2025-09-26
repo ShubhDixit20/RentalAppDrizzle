@@ -1,13 +1,16 @@
 import express, { Request, Response } from "express";
-import bodyParser from "body-parser";
 import db from "./db/db";
 import { users, bookings, vehicletypes } from "./db/schema";
 import { eq } from "drizzle-orm";
+import cors from 'cors';
 
 const app = express();
+
+app.use(cors()); // Adding this later as I faced conflict while testing for my local website. Now, this will allow the cross-origins connection and API calls.
+
 const PORT = 3000;
 
-app.use(bodyParser.json());
+app.use(express.json());
 
 // Vehicle-Types section.
 

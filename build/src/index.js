@@ -13,19 +13,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const body_parser_1 = __importDefault(require("body-parser"));
 const db_1 = __importDefault(require("./db/db"));
 const schema_1 = require("./db/schema");
 const drizzle_orm_1 = require("drizzle-orm");
+const cors_1 = __importDefault(require("cors"));
 const app = (0, express_1.default)();
+app.use((0, cors_1.default)()); // Adding this later as I faced conflict while testing for my local website. Now, this will allow the cross-origins connection and API calls.
 const PORT = 3000;
-app.use(body_parser_1.default.json());
+app.use(express_1.default.json());
 // Vehicle-Types section.
 // Get all vehicle types
 app.get("/vehicle-types", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const types = yield db_1.default.select().from(schema_1.vehicletypes);
-        console.log('hjkjfdhskjdhfkj')
         res.json(types);
     }
     catch (error) {
