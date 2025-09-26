@@ -1,29 +1,97 @@
 import express, { Request, Response } from "express";
+import bodyParser from "body-parser";
 import db from "./db/db";
-import { users } from "./db/schema";
+import { users, bookings, vehicletypes } from "./db/schema";
 import { eq } from "drizzle-orm";
 
 const app = express();
 const PORT = 3000;
 
-app.post("/", async (req: Request, res: Response) => {
-  const user: typeof users.$inferInsert = {
-    name: 'Jennifer',
-    age: '30',
-    email: 'jennifer@test.com',
+app.use(bodyParser.json());
+
+// Vehicle-Types section.
+
+// Get all vehicle types
+app.get("/vehicle-types", async (req: Request, res: Response) => {
+  try {
+    const types = await db.select().from(vehicletypes);
+    res.json(types);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error fetching vehicle types" });
   }
-
-  await db.insert(users).values(user);
-  console.log('New user created!');
-
-  const select_user = await db.select().from(users);
-  console.log(`Getting all users: ${select_user}`);
-
-  return select_user;
 });
 
+// Bookings section.
+
+// Create a new booking
+app.post("/bookings", async (req: Request, res: Response) => {
+  try {
+    const { userId, vehicleId, startDate, endDate } = req.body;
+
+    // basic validation
+    if (!userId || !vehicleId || !startDate || !endDate) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const booking: typeof bookings.$inferInsert = {
+      userId,
+      vehicleId,
+      startDate,
+      endDate,
+    };
+
+    const result = await db.insert(bookings).values(booking).returning();
+
+    res.status(201).json({ message: "Booking created successfully", booking: result[0] });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error creating booking" });
+  }
+});
+
+// Get all bookings
+app.get("/bookings", async (req: Request, res: Response) => {
+  try {
+    const allBookings = await db.select().from(bookings);
+    res.json(allBookings);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error fetching bookings" });
+  }
+});
+
+// Get booking by ID (of booking).
+app.get("/bookings/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const booking = await db.select().from(bookings).where(eq(bookings.id, Number(id)));
+
+    if (booking.length === 0) {
+      return res.status(404).json({ error: "Booking not found" });
+    }
+
+    res.json(booking[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error fetching booking" });
+  }
+});
+
+// Get bookings by ID (of user).
+app.get("/bookings/user/:userId", async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const userBookings = await db.select().from(bookings).where(eq(bookings.userId, Number(userId)));
+
+    res.json(userBookings);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error fetching user bookings" });
+  }
+});
+
+// Server
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
-
-
