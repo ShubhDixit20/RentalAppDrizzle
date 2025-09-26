@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react'
-import {
-  TextField,
-  Button,
-  Typography,
-  Box,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
-} from "@mui/material";
 import './App.css'
-// @import "tailwindcss";
 import axios from 'axios';
+
+type VehicleTypes = {
+  id: number;
+  name: string;
+}
+
+type Vehicle = {
+  id: number;
+  name: string;
+  vehicleTypeId: number;
+}
 
 function App() {
   const [step, setStep] = useState(0)
@@ -24,8 +25,8 @@ function App() {
     endDate: "",
   });
   const [error, setError] = useState("");
-  const [vehicleTypes, setVehicleTypes] = useState([]);
-  const [models, setModels] = useState([]);
+  const [vehicleTypes, setVehicleTypes] = useState<VehicleTypes[]>([]);
+  const [models, setModels] = useState<Vehicle[]>([]);
 
   // async function to fetch the 
   async function callVehicleTypesAPI() {
@@ -101,9 +102,16 @@ function App() {
 
   const handleSubmit = async () => {
     try {
+      const selectedModel = models.find((m) => m.name === formData.model);
+
+      if (!selectedModel) {
+        alert("Please select a model before submitting.");
+        return;
+      }
+
       const res = await axios.post("https://rentalappdrizzle-2.onrender.com/bookings", {
         userId: 1,
-        vehicleId: models.find((m) => m.name === formData.model).id,
+        vehicleId: selectedModel.id,
         startDate: formData.startDate,
         endDate: formData.endDate,
       });
@@ -287,7 +295,7 @@ const styles = {
     padding: "30px",
     borderRadius: "8px",
     width: "400px",
-    textAlign: "center",
+    textAlign: "center" as const,
   },
   input: {
     display: "block",
