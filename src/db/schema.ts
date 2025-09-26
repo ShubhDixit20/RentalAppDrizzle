@@ -21,7 +21,6 @@ export const vehicles = pgTable('vehicles', {
 
 export const bookings = pgTable('bookings', {
     id: integer().primaryKey().generatedAlwaysAsIdentity(),
-    userId: integer().notNull().references(() => users.id),
     vehicleId: integer().notNull().references(() => vehicles.id),
     startDate: date().notNull(),
     endDate: date().notNull(),

@@ -20,7 +20,6 @@ exports.vehicles = (0, pg_core_1.pgTable)('vehicles', {
 });
 exports.bookings = (0, pg_core_1.pgTable)('bookings', {
     id: (0, pg_core_1.integer)().primaryKey().generatedAlwaysAsIdentity(),
-    userId: (0, pg_core_1.integer)().notNull().references(() => exports.users.id),
     vehicleId: (0, pg_core_1.integer)().notNull().references(() => exports.vehicles.id),
     startDate: (0, pg_core_1.date)().notNull(),
     endDate: (0, pg_core_1.date)().notNull(),
