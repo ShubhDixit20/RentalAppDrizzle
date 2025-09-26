@@ -94,6 +94,23 @@ app.get("/bookings/user/:userId", (req, res) => __awaiter(void 0, void 0, void 0
         res.status(500).json({ error: "Error fetching user bookings" });
     }
 }));
+app.get("/vehicles", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { vehicleTypeId } = req.query;
+        if (!vehicleTypeId) {
+            return res.status(400).json({ error: "vehicleTypeId is required" });
+        }
+        const vehicleList = yield db_1.default
+            .select()
+            .from(schema_1.vehicles)
+            .where((0, drizzle_orm_1.eq)(schema_1.vehicles.vehicle_type_id, Number(vehicleTypeId)));
+        res.json(vehicleList);
+    }
+    catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Something went wrong" });
+    }
+}));
 // Server
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);

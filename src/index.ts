@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import db from "./db/db";
-import { users, bookings, vehicletypes } from "./db/schema";
+import { users, bookings, vehicletypes, vehicles } from "./db/schema";
 import { eq } from "drizzle-orm";
 import cors from 'cors';
 
@@ -91,6 +91,26 @@ app.get("/bookings/user/:userId", async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error fetching user bookings" });
+  }
+});
+
+app.get("/vehicles", async (req: Request, res: Response) => {
+  try {
+    const { vehicleTypeId } = req.query;
+
+    if (!vehicleTypeId) {
+      return res.status(400).json({ error: "vehicleTypeId is required" });
+    }
+
+    const vehicleList = await db
+      .select()
+      .from(vehicles)
+      .where(eq(vehicles.vehicle_type_id, Number(vehicleTypeId)));
+
+    res.json(vehicleList);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Something went wrong" });
   }
 });
 
